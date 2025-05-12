@@ -1,23 +1,51 @@
-from game import TicTacToe
-from os import system
-from time import sleep
+from game import Game, User
+from board import GridSquare
+from tkinter import *
 
-tic_tac_toe = TicTacToe()
+root = Tk()
+root.geometry("400x400")
+root.resizable(width=False, height=False)
 
-while tic_tac_toe.winner is False:
-      sleep(2)
-      system('clear')
+user_1 = User(icon="X", name="Aiden")
+user_2 = User(icon="O", name="O-long")
+display_string = StringVar()
 
-      tic_tac_toe.print_board()
-      user_input = input(f"{tic_tac_toe.current_user.name}, type any number between 1 and 9 to play that square! ")
-      #Tests if the user input is a member of the tic-tac-toe dictionary, retries input otherwise.
-      while user_input not in tic_tac_toe.board:
-            user_input = input("Try that again! ")
+game = Game(on_win_callback=display_string.set)
 
-      #Function takes the user move and current user
-      tic_tac_toe.play_move(move=user_input, user=tic_tac_toe.current_user)
+def get_current_user():
+    if user_1.is_turn:
+        return user_1
+    if user_2.is_turn:
+        return user_2
 
+def switch_current_user():
+    user_1.is_turn = not user_1.is_turn
+    user_2.is_turn = not user_2.is_turn
 
+def on_move_played(square):
+    game.play_move(selected_square=square, user=get_current_user())
+    switch_current_user()
+    if game.game_on:
+        display_string.set(f"{get_current_user().name}'s turn!")
+
+user_1.is_turn = True
+display_string.set(f"{get_current_user().name}'s turn!")
+
+GridSquare(rc=(1, 1), grid_id=1, callback=on_move_played)
+GridSquare(rc=(1, 2), grid_id=2, callback=on_move_played)
+GridSquare(rc=(1, 3), grid_id=3, callback=on_move_played)
+
+GridSquare(rc=(2, 1), grid_id=4, callback=on_move_played)
+GridSquare(rc=(2, 2), grid_id=5, callback=on_move_played)
+GridSquare(rc=(2, 3), grid_id=6, callback=on_move_played)
+
+GridSquare(rc=(3, 1), grid_id=7, callback=on_move_played)
+GridSquare(rc=(3, 2), grid_id=8, callback=on_move_played)
+GridSquare(rc=(3, 3),  grid_id=9, callback=on_move_played)
+
+Label(textvariable=display_string).grid(row=4, column=0, columnspan=3)
+
+root.mainloop()
 
 
 
