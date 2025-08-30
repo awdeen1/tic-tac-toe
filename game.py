@@ -6,6 +6,7 @@ class User:
         self.icon = icon
         self.name = name
         self.is_turn = False
+        self.won = False
 
 
     def add_move(self, user):
@@ -13,4 +14,3 @@ class User:
 
     def get_moves(self):
         return set(self._moves)
-
