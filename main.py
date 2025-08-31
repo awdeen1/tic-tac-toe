@@ -11,6 +11,8 @@ winning_combinations = [
     {0, 4, 8}, {2, 4, 6}
 ]
 
+
+#3 user test
 user_1 = {"name": "Aiden", "icon": "X", "moves": [], "is_turn": True, "won": False}
 user_2 = {"name": "O-Ring", "icon": "O", "moves": [], "is_turn": False, "won": False}
 user_3 = {"name": "Test", "icon": "P", "moves": [], "is_turn": False, "won": False}
