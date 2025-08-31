@@ -1,4 +1,3 @@
-from game import User
 from tkinter import *
 
 root = Tk()
@@ -12,63 +11,69 @@ winning_combinations = [
     {0, 4, 8}, {2, 4, 6}
 ]
 
-#Checks winner by checking if a winning combo is contained within the user's moves
-def check_winner(user):
-    user_moves = user.get_moves()
+user_1 = {"name": "Aiden", "icon": "X", "moves": [], "is_turn": True, "won": False}
+user_2 = {"name": "O-Ring", "icon": "O", "moves": [], "is_turn": False, "won": False}
+user_3 = {"name": "Test", "icon": "P", "moves": [], "is_turn": False, "won": False}
 
-    if len(user_moves) >= 5:
-        display_string.set("It's a draw!")
-        return True
+all_users = [user_1, user_2, user_3]
 
-    for combo in winning_combinations:
-        if combo.issubset(user_moves):
-            display_string.set(f"{user.name} is the winner!")
-            return True
-
-    return False
-
-
-
-def get_current_user():
-    if user_1.is_turn:
-        return user_1
-    if user_2.is_turn:
-        return user_2
+def get_current_user(users):
+    for user in users:
+        if user['is_turn']:
+            return user
     return None
 
+def switch_current_user(users):
+    current_user = get_current_user(users)
+    next_user_index = users.index(current_user) + 1 % len(users)
+    next_user = users[next_user_index]
 
-def switch_current_user():
-    user_1.is_turn = not user_1.is_turn
-    user_2.is_turn = not user_2.is_turn
+    current_user['is_turn'] = False
+    next_user['is_turn'] = True
 
-def on_move_played(index):
+#Checks winner by checking if a winning combo is contained within the user's moves
+def check_winner(user):
+    if all(square.cget('text') != "" for square in board):
+        #Draw
+        for user in all_users:
+            user['won'] = True
 
-    if not user_2.won and not user_1.won:
-        #Retrives the board square by the index
-        square = board[index]
+    for combo in winning_combinations:
+        if combo.issubset(set(user["moves"])):
+            user['won'] = True
 
-        current_user = get_current_user()
 
+
+def on_move_played(index, users):
+    #Retrives the board square by the index
+    square = board[index]
+    current_user = get_current_user(users=all_users)
+
+    if not any(user['won'] for user in users):
+        #Plays move and appropriately changes the variables
         if len(square.cget('text')) == 0:
-            #Plays move and appropriately changes the variables
-            current_user.add_move(index)
-            square.configure(text=current_user.icon)
+            current_user['moves'].append(index)
+            square.configure(text=current_user['icon'])
+            check_winner(current_user)
 
-            if check_winner(current_user):
-                print('yes')
-                current_user.won = True
+            if all(user['won'] for user in users):
+                display_string.set("It's a draw!")
+            elif any(user['won'] for user in users):
+                display_string.set(f"{current_user['name']} is the winner!")
+            else:
+                switch_current_user(users=all_users)
+                display_string.set(f"{get_current_user(users=all_users)['name']}'s turn!")
 
-    switch_current_user()
 
-    if not user_2.won and not user_1.won:
-        display_string.set(f"{get_current_user().name}'s turn!")
+
 
 board = []
 board_index = 0
+
 for row in range(3):
     for column in range(3):
         def on_click(current_index=board_index):
-            on_move_played(current_index)
+            on_move_played(current_index, users=all_users)
 
         new_button = Button(text="", command=on_click,
                             font=("Ariel", 30), width=1, height=1)
@@ -78,16 +83,11 @@ for row in range(3):
         board_index +=1
 
 
-user_1 = User(icon="X", name="Aiden")
-user_2 = User(icon="O", name="O-long")
 display_string = StringVar()
-
-user_1.is_turn = True
-display_string.set(f"{get_current_user().name}'s turn!")
+display_string.set(f"{get_current_user(users=all_users)['name']}'s turn!")
 
 
 Label(textvariable=display_string).grid(row=4, column=0, columnspan=3)
-
 
 root.mainloop()
 
